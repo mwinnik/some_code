@@ -22,7 +22,12 @@ sudo -u postgres psql -c "CREATE DATABASE netbox"
 sudo -u postgres psql -c "CREATE USER netbox WITH PASSWORD 'J5brHrAXFLQSif0K'"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox"
 ##########################################################
-
+#HANDLE OPEN SSL
+ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout /etc/ssl/private/netbox.key \
+-out /etc/ssl/certs/netbox.crt \
+-subj "/C=US"
+#########################################################
 
 
 #install required system packages <-- TODO confirm which packages can be excluded
