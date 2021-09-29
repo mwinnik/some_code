@@ -1,12 +1,13 @@
 #!/bin/bash
 set -e
 
-LIB_PATH = "/opt"
-NETBOX_VERSION = "3.0.3"
-NGINX_VERSION = "1.18.0-0ubuntu1.2"
+LIB_PATH="/opt"
+NETBOX_VERSION="3.0.3"
+NGINX_VERSION="1.18.0-0ubuntu1.2"
 
 # Update Ubuntu
 sudo apt-get update -y
+
 
 ####################################
 #POSTGRES
@@ -22,17 +23,19 @@ sudo -u postgres psql -c "CREATE USER netbox WITH PASSWORD 'J5brHrAXFLQSif0K'"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE netbox TO netbox"
 ##########################################################
 
+
+
 #install required system packages <-- TODO confirm which packages can be excluded
 sudo apt install -y python3 python3-pip python3-venv python3-dev build-essential libxml2-dev libxslt1-dev libffi-dev libpq-dev libssl-dev zlib1g-dev
 #Go to directory for the NetBox installation
 cd "$LIB_PATH"
 #Download and untar NetBox release
-wget sudo wget https://github.com/netbox-community/netbox/archive/v$NETBOX_VERSION.tar.gz
+sudo wget https://github.com/netbox-community/netbox/archive/v$NETBOX_VERSION.tar.gz
 sudo tar -xzf v$NETBOX_VERSION.tar.gz -C $LIB_PATH
 sudo ln -sf $LIB_PATH/netbox-$NETBOX_VERSION/ $LIB_PATH/netbox
 #Install required packages with version equal or grater than not to downgrade golden image packages
 sudo sed -i -e "s/==/>=/g" "$LIB_PATH"/netbox/requirements.txt
-python -m pip install --ignore-installed -r "$LIB_PATH"/netbox/requirements.txt
+python3 -m pip install --ignore-installed -r "$LIB_PATH"/netbox/requirements.txt
 #install redis
 sudo apt install -y redis-server
 #verify redis status
@@ -48,8 +51,8 @@ sudo cp configuration.example.py configuration.py
 #allow all hosts
 sudo sed -i -e "s/ALLOWED_HOSTS\s=\s\[\]/ALLOWED_HOSTS = ['*']/g" configuration.py
 #TODO: handle PostgreSQL name/user/password/host/port
-#sed -i "s/'USER': '',  /'USER': 'netbox',  /g" configuration.py
-#sed -i "s/'PASSWORD': '',  /'PASSWORD': 'J5brHrAXFLQSif0K',  /g" configuration.py
+sed -i "s/'USER': '',  /'USER': 'netbox',  /g" configuration.py
+sed -i "s/'PASSWORD': '',  /'PASSWORD': 'J5brHrAXFLQSif0K',  /g" configuration.py
 #sed -i "s/'HOST': 'localhost',  /'HOST': 'database.rds.amazonaws.com',  /g" configuration.py
 #sed -i "s/'PORT': '',  /'PORT': '5432',  /g" configuration.py
 
@@ -77,7 +80,7 @@ sudo systemctl daemon-reload
 sudo systemctl start netbox netbox-rq
 sudo systemctl enable netbox netbox-rq
 #verify status
-systemctl status netbox.service
+#systemctl status netbox.service
 #install nginx
 sudo apt-get install -y nginx=$NGINX_VERSION
 #configure nginx
